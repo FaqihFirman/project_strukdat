@@ -1,0 +1,2 @@
+PRJ001,SD dramaga,buat sekolah untuk desa xyz,Faqih Firman Pratama,1e+07,2.5e+06
+PRJ002,Donasi Kemanusiaan,bantuan untuk bencana gempa,Brilyan Pancar Komara,1e+08,1.361e+07
