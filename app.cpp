@@ -443,6 +443,38 @@ void muatLogDonasiDariFile() {
     }
 }
 
+void tampilkanLeaderboardDonasi(const string& id_project) {
+    unordered_map<string, double> totalDonasiPerUser;
+
+    for (const auto& [username, stackDonasi] : logDonasiUser) {
+        vector<Donasi> donasiList = stackDonasi.getAllData();
+        for (const auto& d : donasiList) {
+            if (d.id_project == id_project) {
+                totalDonasiPerUser[username] += d.nominal;
+            }
+        }
+    }
+
+    vector<pair<string, double>> leaderboard(totalDonasiPerUser.begin(), totalDonasiPerUser.end());
+    sort(leaderboard.begin(), leaderboard.end(), [](const auto& a, const auto& b) {
+        return a.second > b.second;
+    });
+
+    cout << "\n🏆 LEADERBOARD DONATUR PROJECT INI 🏆\n";
+    cout << "+-----+----------------+-----------------+\n";
+    cout << "| No. | Username       | Total Donasi    |\n";
+    cout << "+-----+----------------+-----------------+\n";
+    int no = 1;
+    for (const auto& [username, total] : leaderboard) {
+        cout << "| " << setw(3) << no++ << " | "
+             << setw(14) << left << username << " | "
+             << setw(15) << right << fixed << setprecision(2) << total << " |\n";
+        if (no > 5) break; // top 5 aja
+    }
+    cout << "+-----+----------------+-----------------+\n";
+}
+
+
 void donasiKeProject(const string& username) {
     lihatSemuaProject();
     cout << "\nMasukkan nomor project yang ingin Anda donasi (ketik -1 untuk batal): ";
@@ -481,6 +513,7 @@ void donasiKeProject(const string& username) {
     Project& p = curr->data;
 
     cout << "\nDeskripsi : " << p.deskripsi << "\n";
+    tampilkanLeaderboardDonasi(p.id_project);
     cout << "Target Dana: " << p.target_dana << "\n";
     cout << "Dana Terkumpul: " << p.dana_terkumpul << "\n";
 
