@@ -121,10 +121,62 @@ public:
     }
 };
 
-// Global variables
+struct NodeProject {
+    Project data;
+    NodeProject* next;
+    NodeProject(const Project& p) : data(p), next(nullptr) {}
+};
+
+class LinkedListProject {
+private:
+    NodeProject* head;
+    NodeProject* tail;
+    int count;
+
+public:
+    LinkedListProject() : head(nullptr), tail(nullptr), count(0) {}
+    ~LinkedListProject() { clear(); }
+
+    void add(const Project& p) {
+        NodeProject* newNode = new NodeProject(p);
+        if (!head) head = tail = newNode;
+        else {
+            tail->next = newNode;
+            tail = newNode;
+        }
+        count++;
+    }
+
+    Project& get(int index) {
+        NodeProject* curr = head;
+        for (int i = 0; i < index && curr; ++i) {
+            curr = curr->next;
+        }
+        if (!curr) throw out_of_range("Index di luar batas");
+        return curr->data;
+    }
+
+    int size() const { return count; }
+
+    void clear() {
+        NodeProject* curr = head;
+        while (curr) {
+            NodeProject* tmp = curr;
+            curr = curr->next;
+            delete tmp;
+        }
+        head = tail = nullptr;
+        count = 0;
+    }
+
+    NodeProject* begin() const { return head; }
+};
+
 unordered_map<string, User> akun;
-vector<Project> daftarProject;
+LinkedListProject daftarProject;
 unordered_map<string, StackDonasi> logDonasiUser;
+// Global variables
+
 
 // Timestamp sekarang
 string getCurrentTimestamp() {
@@ -217,7 +269,7 @@ void muatProjectDariFile() {
         try {
             p.target_dana = stod(target);
             p.dana_terkumpul = stod(terkumpul);
-            daftarProject.push_back(p);
+            daftarProject.add(p);
         } catch (const exception& e) {
             cerr << "❌ Error membaca project: " << baris << "\n";
             cerr << "   → Alasan: " << e.what() << "\n";
@@ -230,9 +282,9 @@ void muatProjectDariFile() {
 // Simpan project ke file
 void simpanProjectKeFile() {
     ofstream file("project.txt");
-    for (const auto& p : daftarProject)
-        file << p.id_project << "," << p.nama_project << "," << p.deskripsi << "," << p.nama_pembuat << ","
-             << p.target_dana << "," << p.dana_terkumpul << "\n";
+    for (NodeProject* curr = daftarProject.begin(); curr != nullptr; curr = curr->next)
+        file << curr->data.id_project << "," << curr->data.nama_project << "," << curr->data.deskripsi << "," << curr->data.nama_pembuat << ","
+             << curr->data.target_dana << "," << curr->data.dana_terkumpul << "\n";
     file.close();
 }
 
@@ -279,45 +331,43 @@ void buatProject(const User& user) {
     }
 
     p.dana_terkumpul = 0;
-    daftarProject.push_back(p);
+    daftarProject.add(p);
     simpanProjectKeFile();
     cout << "✅ Project berhasil dibuat dan disimpan!\n";
 }
 
 // Lihat project yang dibuat user
 void lihatProjectSaya(const User& user) {
-    cout << "\n===== PROJECT YANG SUDAH KAMU BUAT =====\n";
-    vector<Project> userProjects;
-    for (const auto& p : daftarProject) {
+    bool ada = false;
+    int no = 1;
+    for (NodeProject* curr = daftarProject.begin(); curr != nullptr; curr = curr->next) {
+        const auto& p = curr->data;
         if (p.nama_pembuat == user.nama_lengkap) {
-            userProjects.push_back(p);
+            if (!ada) {
+                cout << "\n===== PROJECT YANG SUDAH KAMU BUAT =====\n";
+                cout << "+-----+------------------------------+---------------------+---------------------+\n";
+                cout << "| No. | Nama Project                | Target Dana         | Dana Terkumpul      |\n";
+                cout << "+-----+------------------------------+---------------------+---------------------+\n";
+                ada = true;
+            }
+            cout << "| " << setw(3) << no++ << " | "
+                 << setw(28) << left << p.nama_project << " | "
+                 << setw(19) << right << fixed << setprecision(2) << p.target_dana << " | "
+                 << setw(19) << right << fixed << setprecision(2) << p.dana_terkumpul << " |\n";
         }
     }
-
-    if (userProjects.empty()) {
+    if (!ada) {
         cout << "⚠️ Anda belum memiliki project.\n";
-        return;
+    } else {
+        cout << "+-----+------------------------------+---------------------+---------------------+\n";
     }
-
-    cout << "+-----+------------------------------+---------------------+---------------------+\n";
-    cout << "| No. | Nama Project                | Target Dana         | Dana Terkumpul      |\n";
-    cout << "+-----+------------------------------+---------------------+---------------------+\n";
-
-    int no = 1;
-    for (const auto& p : userProjects) {
-        cout << "| " << setw(3) << no++ << " | "
-             << setw(28) << left << p.nama_project << " | "
-             << setw(19) << right << fixed << setprecision(2) << p.target_dana << " | "
-             << setw(19) << right << fixed << setprecision(2) << p.dana_terkumpul << " |\n";
-    }
-    cout << "+-----+------------------------------+---------------------+---------------------+\n";
 }
 
 // Lihat semua project
 void lihatSemuaProject() {
     cout << "\n===== DAFTAR PROJECT TERSEDIA =====\n";
 
-    if (daftarProject.empty()) {
+    if (daftarProject.size() == 0) {
         cout << "⚠️ Belum ada project yang tersedia.\n";
         return;
     }
@@ -326,11 +376,12 @@ void lihatSemuaProject() {
     cout << "| No. | ID       | Nama Project                  | Pembuat                    | Target Dana            | Dana Terkumpul          | Progress (%)  |\n";
     cout << "+-----+----------+-------------------------------+----------------------------+------------------------+-------------------------+--------------+\n";
 
-    for (size_t i = 0; i < daftarProject.size(); ++i) {
-        const auto& p = daftarProject[i];
+    int i = 1;
+    for (NodeProject* curr = daftarProject.begin(); curr != nullptr; curr = curr->next) {
+        const auto& p = curr->data;
         double persentase = (p.target_dana > 0) ? (p.dana_terkumpul / p.target_dana * 100.0) : 0.0;
 
-        cout << "| " << setw(3) << (i + 1) << " | "
+        cout << "| " << setw(3) << i++ << " | "
              << setw(8) << left << p.id_project << " | "
              << setw(31) << left << p.nama_project << " | "
              << setw(26) << left << p.nama_pembuat << " | "
@@ -341,6 +392,7 @@ void lihatSemuaProject() {
 
     cout << "+-----+----------+-------------------------------+----------------------------+------------------------+-------------------------+--------------+\n";
 }
+
 
 
 // Fungsi untuk menyimpan log donasi ke file
@@ -391,7 +443,6 @@ void muatLogDonasiDariFile() {
     }
 }
 
-// Donasi ke project
 void donasiKeProject(const string& username) {
     lihatSemuaProject();
     cout << "\nMasukkan nomor project yang ingin Anda donasi (ketik -1 untuk batal): ";
@@ -411,12 +462,24 @@ void donasiKeProject(const string& username) {
         return;
     }
 
-    if (pilihan < 1 || pilihan > (int)daftarProject.size()) {
+    if (pilihan < 1 || pilihan > daftarProject.size()) {
         cout << "❌ Nomor tidak valid.\n";
         return;
     }
 
-    Project& p = daftarProject[pilihan - 1];
+    // Cari node ke-(pilihan - 1)
+    NodeProject* curr = daftarProject.begin();
+    for (int i = 1; i < pilihan && curr != nullptr; ++i) {
+        curr = curr->next;
+    }
+
+    if (!curr) {
+        cout << "❌ Project tidak ditemukan.\n";
+        return;
+    }
+
+    Project& p = curr->data;
+
     cout << "\nDeskripsi : " << p.deskripsi << "\n";
     cout << "Target Dana: " << p.target_dana << "\n";
     cout << "Dana Terkumpul: " << p.dana_terkumpul << "\n";
@@ -591,4 +654,4 @@ int main() {
     muatLogDonasiDariFile();  
     menuUtama();
     return 0;
-}
+}    
