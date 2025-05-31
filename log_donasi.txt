@@ -1,2 +1,11 @@
-user0002,PRJ001,Project A,2.5e+06,29-05-2025 21:30:39
-user0001,PRJ001,Project A,1e+06,29-05-2025 21:30:15
+satoshi,PRJ001,Pembangunan Gedung SSMI,5e+06,31-05-2025 22:29:43
+satoshi,PRJ003,membangun jembatan,1e+06,31-05-2025 22:30:59
+Sasuke,PRJ001,Pembangunan Gedung SSMI,2.5e+06,31-05-2025 21:29:20
+Sasuke,PRJ001,Pembangunan Gedung SSMI,1e+06,31-05-2025 21:39:39
+steve,PRJ001,Pembangunan Gedung SSMI,6e+06,31-05-2025 22:41:04
+steve,PRJ004,bangun gapura,1e+06,31-05-2025 22:41:47
+tono01,PRJ001,Pembangunan Gedung SSMI,2.7e+07,31-05-2025 22:01:09
+tono01,PRJ002,korban banjir,100000,31-05-2025 22:02:15
+user0001,PRJ001,Pembangunan Gedung SSMI,100000,31-05-2025 21:24:59
+user0001,PRJ001,Pembangunan Gedung SSMI,2.4e+06,31-05-2025 21:37:42
+Rini,PRJ001,Pembangunan Gedung SSMI,1.5e+07,31-05-2025 21:23:42

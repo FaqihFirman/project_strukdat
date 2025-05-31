@@ -1,1 +1,4 @@
-PRJ001,Project A,Deskripsi project A,Faqih Firman Pratama,5e+07,3.5e+06
+PRJ001,Pembangunan Gedung SSMI,Membangun gedung untuk sarana belajar mahasiswa SSMI IPB,Budi,1e+10,5.9e+07
+PRJ002,korban banjir,korban banjir bogor,tono ganteng,3e+06,100000
+PRJ003,membangun jembatan,pembangunan jembatan untuk desa,Satoshi Nakamoto,3e+08,1e+06
+PRJ004,bangun gapura,----,Steve Jobs,1e+08,1e+06
